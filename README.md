@@ -12,7 +12,9 @@ https://r7rohan.github.io/Auto-pen-Edge/
 
 - Aligns the drawing with the edges in the picture (`uses k-d trees`)
 
-- Edge detection filter can be applied based on threshold selected (`uses Sobel filter`)<br><br>
+- Edge detection filter can be applied based on threshold selected (`uses Sobel filter`)
+
+- Alignment and drawing can be erased and done like a normal editor<br><br>
 `Choose File`: Upload the local image <br>
 `Picture`: Show the actual picture <br>
 `Sobel`: Show the Edges <br>
