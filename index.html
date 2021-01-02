@@ -1,0 +1,61 @@
+<html>
+<head>
+<style>
+body {
+  margin-top:1%;
+  margin-left: 20%;
+  margin-right: 20%;
+  text-align:center;
+}
+button {
+    border-width: 2px;
+    border-style: outset;
+    border-radius: 20px;
+    border-color:#00FFFF;
+    background-color: #CCFFFF;
+    text-decoration: none;
+    padding: 0.5%;
+}
+</style>
+</head>
+
+<body>
+<div style="font-size:4.3vh;"> Auto-Pen that aligns drawing to edges, uses SOBEL edge detection filter</div>
+<br>
+<canvas id="canvas"></canvas>
+<br>
+<br>
+
+<section id="controls">
+
+  <input type="file" id="inp" display="block">
+  <br>
+  <br>
+  <div class="slidecontainer">
+    <label for="Threshold">Threshold</label>
+    <input type="range" min="1" max="500" value="" class="slider" id="Threshold">
+  </div>
+  <br>
+  <button id="picture">Picture</button>
+  <button id="sobel">Sobel filter</button> <br><br>
+  <button id="apply">Apply</button>
+  <button id="undo">Undo-Apply</button>
+  <button id="reset">Reset</button>
+  <br>
+  <br>
+  <a id="dl" download="Canvas.png" href="#">Download</a>
+  <br>
+  <br>
+  <br>
+  <br>
+  <label for="max"> Maxdist Off</label>
+  <input type="checkbox" id="max">
+
+</section>
+
+
+  <script src="js\kdTree.js"></script>
+  <script src="js\img.js"></script>
+  <script src="js\main.js"></script>
+</body>
+</html>
