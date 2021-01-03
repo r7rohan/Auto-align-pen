@@ -14,6 +14,8 @@ https://r7rohan.github.io/Auto-pen-Edge/
 
 - Edge detection filter can be applied based on threshold selected (`uses Sobel filter`)
 
+- Smoothening of drawing can be done
+
 - Alignment and drawing can be erased and done like a normal editor<br><br>
 `Choose File`: Upload the local image <br>
 `Picture`: Show the actual picture <br>
@@ -21,6 +23,7 @@ https://r7rohan.github.io/Auto-pen-Edge/
 `Threshold`: Select the edge threshold <br>
 `Align`: Align your drawing with the image <br>
 `Undo Align`: Undo the last alignment <br>
+`Smooth`: Smoothens your drawing <br>
 `Reset`: Remove the drawing <br>
 `Download`: Download whatever is on canvas <br>
 `Maxdist off`: Align with anything, distance will not matter
@@ -31,5 +34,7 @@ https://r7rohan.github.io/Auto-pen-Edge/
 - Edge detection is done using `sobel` filter. Convulation is based on [this code](https://github.com/piratefsh/image-processing)
 
 - Nearest neighbour is implemented using `k-d Tree`. k-d Tree is based on [this code](https://github.com/ubilabs/kd-tree-javascript)
+
+- Smoothening is based on averaging neighbouring strokes
 
 - Written in javascript

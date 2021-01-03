@@ -71,19 +71,25 @@ class imgc{
 
         for(var i = 0; i < this.length; i++){
             // sum of each pixel * kernel value
-            var sumX = 0, sumY = 0;
+            var sumXr = 0, sumYr = 0;
+            var sumXg = 0, sumYg = 0;
+            var sumXb = 0, sumYb = 0;
             for(var x = 0; x < kernelSize; x++){
                 for(var y = 0; y < kernelSize; y++){
                     var px = data[i + (rowOffset * y) + x];
                     var r = px[0];
-
-                    // use px[0] (i.e. R value) because grayscale anyway)
-                    sumX += r * kernelX[y][x]*this.contrast;
-                    sumY += r * kernelY[y][x]*this.contrast;
+                    var g = px[1];
+                    var b = px[2];
+                    sumXr += r * kernelX[y][x]*this.contrast;
+                    sumYr += r * kernelY[y][x]*this.contrast;
+                    sumXg += g * kernelX[y][x]*this.contrast;
+                    sumYg += g * kernelY[y][x]*this.contrast;
+                    sumXb += b * kernelX[y][x]*this.contrast;
+                    sumYb += b * kernelY[y][x]*this.contrast;
                 }
             }
-            this.mag[i] = SQRT(sumX*sumX + sumY*sumY);
-            this.drc[i] = ATAN2(sumX,sumY);
+            this.mag[i] = SQRT(max([sumXr*sumXr + sumYr*sumYr],[sumXg*sumXg + sumYg*sumYg],[sumXb*sumXb + sumYb*sumYb]));
+            this.drc[i] = ATAN2(sumXr,sumYr);
             this.max = this.mag[i] > this.max ? this.mag[i] : this.max
 
         }
@@ -126,14 +132,12 @@ class imgc{
         return new ImageData(new Uint8ClampedArray(edges), this.canvas.width, this.canvas.height);
     }
 
-
     draw(which){
       if (which == 'normal')
       this.context.putImageData(this.img,0,0);
       else{
         this.sobelimg=this.sobelt();
         this.context.putImageData(this.sobelimg,0,0);}
-
     }
 
 }
@@ -147,7 +151,6 @@ class strokec{
       this.maxdist = maxdist;
       this.reset();
   }
-
   reset(){
     this.prevarr=[];
     this.arr=[];
@@ -156,6 +159,7 @@ class strokec{
     this.arr=this.prevarr;
   }
   apply(pic){
+    this.fast(this.arr);
     this.prevarr=this.arr.slice();
     pic.sobelimg=pic.sobelt();
     var imgarr = [];
@@ -168,7 +172,6 @@ class strokec{
     }
 
     var tree = new kdTree(imgarr, this.distance, ["x", "y"]);
-
     for(var i=0; i<this.arr.length;i++){
       var point = this.arr[i];
       if(point.x<0)continue;
@@ -177,8 +180,24 @@ class strokec{
     }
   }
 
-  distance(pos1,pos2){
-    return (pos1.x-pos2.x)*(pos1.x-pos2.x)+(pos1.y-pos2.y)*(pos1.y-pos2.y);
+  smooth(k,r){
+    var d = Math.floor(k/2),i,temp;
+    i=misc1(this,0,k-1,k);
+    temp=i[1];
+    i=i[0];
+
+    for (;i<this.arr.length-k;i++){
+      if(this.distance(temp,this.arr[i+d])>r)
+        this.arr[i+d] = {x:temp.x,y:temp.y};
+
+      if(this.arr[i+k].x<0){
+        i=misc1(this,i+k+1,i+k+1+k-1,k);
+        temp=i[1];
+        i=i[0];
+        continue;}
+      temp.x += (this.arr[i+k].x-this.arr[i].x)/k;
+      temp.y += (this.arr[i+k].y-this.arr[i].y)/k;
+    }
   }
 
   draw(){
@@ -196,9 +215,20 @@ class strokec{
       pos = this.arr[i];
       if(pos.x==-1)continue;
       this.context.lineTo(pos.x, pos.y);
-
     }
     this.context.stroke();
+  }
+
+  distance(pos1,pos2){
+    return (pos1.x-pos2.x)*(pos1.x-pos2.x)+(pos1.y-pos2.y)*(pos1.y-pos2.y);
+  }
+
+  fast(e){
+    var arr=[];
+    for(var i=1;i<e.length;i++){
+      if(eqlpt(e[i],e[i-1])==0)
+        arr.push({x:e[i].x,y:e[i].y});}
+    e.arr=arr;
   }
 
 }

@@ -2,9 +2,10 @@ var pic;
 var stroke1;
 var which = "normal";
 
-var maxdist = Number(30*30);
-var lineWidth = Number(3);
 var contrast = 3;
+var maxdist = Number(15*15);
+var lineWidth = Number(3);
+var smoothness=50;
 
 var width=Number(800);
 var canvas=document.getElementById('canvas')
@@ -31,7 +32,8 @@ function failed() {
 function setupcontrols(){
   document.getElementById('picture').onclick = function(){pic.draw("normal");stroke1.draw();which="normal"};
   document.getElementById('sobel').onclick = function(){pic.draw("sobel");stroke1.draw();which="sobel"};
-  document.getElementById('apply').onclick = function(){stroke1.apply(pic);pic.draw(which);stroke1.draw();console.log("applied");};
+  document.getElementById('apply').onclick = function(){stroke1.apply(pic); pic.draw(which); stroke1.draw(); console.log("applied");};
+  document.getElementById('smooth').onclick = function(){stroke1.smooth(smoothness,2*2); pic.draw(which); stroke1.draw(); console.log("smooth");};
   document.getElementById('undo').onclick = function(){pic.draw(which); stroke1.undo();  stroke1.draw(); console.log("undone");};
   document.getElementById('reset').onclick = function(){stroke1.reset();pic.draw(which);};
 
@@ -41,7 +43,7 @@ function setupcontrols(){
   }
 
   document.getElementById("max").onchange=function(){
-    if(stroke1.maxdist!=maxdist)stroke1.maxdist=maxdist;else stroke1.maxdist=1000*1000;
+    if(!document.getElementById("max").checked)stroke1.maxdist=maxdist;else stroke1.maxdist=1000*1000;
     console.log('maxdist changed');}
 
   document.getElementById('dl').onclick=function(){
