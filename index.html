@@ -1,33 +1,61 @@
 <html>
 <head>
+  <meta name="google-site-verification" content="cfJk9FLR8RlGvv_xyGc4Z-P6s0WkY_pr9JwI45biJvM" />
+
 <style>
+*{
+  background-color:#F5F5F5;
+}
 body {
-  margin-top:1%;
-  margin-left: 20%;
-  margin-right: 20%;
+  margin-top:3vh;
+}
+div.main{
+  width:60vw;
+  height:100vh;
+  display:inline-block;
+}
+div.controls{
+  width:20vw;
+  height:100vh;
+  padding-top:10vh;
+  display:inline-block;
   text-align:center;
+  float:left;
 }
 button {
+    width:7vw;
     border-width: 2px;
+    border-radius: 5px;
     border-style: outset;
-    border-radius: 20px;
     border-color:#00FFFF;
     background-color: #CCFFFF;
     text-decoration: none;
     padding: 0.5%;
 }
+canvas{
+  margin-left: 5vw;
+}
+a {
+  text-decoration: none;
+}
 </style>
 </head>
 
+
 <body>
-<div style="font-size:4.3vh;"> Auto-Pen that aligns drawing to edges, uses SOBEL edge detection filter</div>
-<br>
-<canvas id="canvas"></canvas>
-<br>
-<br>
 
-<section id="controls">
+<div class="controls">
 
+  <div class="sign"><a href="https://github.com/r7rohan/Auto-align-pen">Auto-align-pen Repo</a>
+  <br>
+  <br>
+  <a href="https://github.com/r7rohan">by r7rohan</a></div>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
   <input type="file" id="inp" display="block">
   <br>
   <br>
@@ -36,11 +64,11 @@ button {
     <input type="range" min="1" max="500" value="" class="slider" id="Threshold">
   </div>
   <br>
-  <button id="picture">Picture</button>
+  <button id="picture">Picture</button> <br><br>
   <button id="sobel">Sobel filter</button> <br><br>
-  <button id="apply">Apply</button>
-  <button id="undo">Undo-Apply</button>
-  <button id="smooth">Smooth</button>
+  <button id="apply">Apply</button> <br><br>
+  <button id="undo">Undo-Apply</button> <br><br>
+  <button id="smooth">Smooth</button> <br><br>
   <button id="reset">Reset</button>
   <br>
   <br>
@@ -52,7 +80,22 @@ button {
   <label for="max"> Maxdist Off</label>
   <input type="checkbox" id="max">
 
-</section>
+</div>
+
+<div class = "main">
+<div style="font-size:5vh;"> Auto-Pen align drawing to the edges</div>
+<br>
+<br>
+<div style="font-size:2.5vh;"> Drawing can be automatically aligned with the edges. Online tool for auto pen alignment.
+  Additionally, edge detection and smoothening can be also done. Edge detection uses SOBEL edge detection filter. <br><br>
+ If you don't get the desired result try adjusting Threshold and try to Smoothen. Switch of maxdist for stronger results</div>
+<br>
+<br>
+<canvas id="canvas"></canvas>
+<br>
+<br>
+</div>
+
 
   <script src="js\misc.js"></script>
   <script src="js\kdTree.js"></script>
