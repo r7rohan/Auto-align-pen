@@ -2,7 +2,7 @@
 
 
 ### Demo
-https://r7rohan.github.io/Auto-pen-Edge/
+https://r7rohan.github.io/Auto-align-pen/
 
 
 ### Features
