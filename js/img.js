@@ -23,15 +23,13 @@ class imgc{
 
    this.context.drawImage(img, 0, 0, img.width,img.height,0, 0, this.canvas.width, this.canvas.height);
    this.img = this.context.getImageData(0, 0, this.canvas.width, this.canvas.height);
-   this.threshold = 100;
+   this.threshold = 200;
    this.contrast=contrast;
    this.mag;
    this.drc;
    this.length;
-   this.max=0;
    this.sobelimg;
    this.sobel();
-   this.sobelimg=this.sobelt();
  }
 
  sobel(){
@@ -80,17 +78,17 @@ class imgc{
                     var r = px[0];
                     var g = px[1];
                     var b = px[2];
-                    sumXr += r * kernelX[y][x]*this.contrast;
-                    sumYr += r * kernelY[y][x]*this.contrast;
-                    sumXg += g * kernelX[y][x]*this.contrast;
-                    sumYg += g * kernelY[y][x]*this.contrast;
-                    sumXb += b * kernelX[y][x]*this.contrast;
-                    sumYb += b * kernelY[y][x]*this.contrast;
+                    sumXr += r * kernelX[y][x]*this.contrast ;
+                    sumYr += r * kernelY[y][x]*this.contrast ;
+                    sumXg += g * kernelX[y][x]*this.contrast ;
+                    sumYg += g * kernelY[y][x]*this.contrast ;
+                    sumXb += b * kernelX[y][x]*this.contrast ;
+                    sumYb += b * kernelY[y][x]*this.contrast ;
                 }
             }
             this.mag[i] = SQRT(max([sumXr*sumXr + sumYr*sumYr],[sumXg*sumXg + sumYg*sumYg],[sumXb*sumXb + sumYb*sumYb]));
             this.drc[i] = ATAN2(sumXr,sumYr);
-            this.max = this.mag[i] > this.max ? this.mag[i] : this.max
+
 
         }
     }
@@ -102,7 +100,7 @@ class imgc{
       var directions = new Array(this.length);
       // set magnitude to 0 if doesn't exceed threshold, else set to magnitude
       for(var i = 0; i < this.length; i++){
-        magnitudes[i] = this.mag[i] > thresh? this.mag[i] : 0;
+        magnitudes[i] = this.mag[i]> thresh? this.mag[i] : 0;
         directions[i] = this.mag[i] > thresh? this.drc[i] : 0;
       }
 
@@ -152,37 +150,45 @@ class strokec{
       this.reset();
   }
   reset(){
-    this.prevarr=[];
     this.arr=[];
   }
   undo(){
-    this.arr=this.prevarr;
+    this.arr.pop();
+    for(var i=this.arr.length-1;i>=0;i--)
+      if(this.arr[i].x==-1)break;
+      else
+      this.arr.pop();
   }
-  apply(pic){
-    this.fast(this.arr);
-    this.prevarr=this.arr.slice();
+
+  maketree(pic){
     pic.sobelimg=pic.sobelt();
     var imgarr = [];
     var rowOffset = this.canvas.width;
-    var data = pic.edges;
+    var data = pic.edges.slice();
 
     for(var i=0; i<data.length;i++){
       if(data[i]>0)
         imgarr.push({x:i%rowOffset,y:Math.floor(i/rowOffset)});
     }
+    this.tree = new kdTree(imgarr, this.distance, ["x", "y"]);
+  }
 
-    var tree = new kdTree(imgarr, this.distance, ["x", "y"]);
-    for(var i=0; i<this.arr.length;i++){
-      var point = this.arr[i];
-      if(point.x<0)continue;
-      var nearest = tree.nearest(point, 1, this.maxdist);
-      this.arr[i] = nearest.length? nearest[0][0]:point;
+  apply(){
+    for(var i = this.arr.length-1;i>=0;i--){
+      if(this.arr[i].x<0)break;
+      this.arr[i]=this.nearest(this.arr[i]);
     }
   }
 
   smooth(k,r){
-    var d = Math.floor(k/2),i,temp;
-    i=misc1(this,0,k-1,k);
+    //only the last segment
+    var i=this.arr.length-2;
+    if(i<=0)return;
+    for(;i>=0;i--)if(this.arr[i].x<0) break;
+    i+=1;
+
+    var d = Math.floor(k/2),temp;
+    i=misc1(this,i,i+k-1,k);
     temp=i[1];
     i=i[0];
 
@@ -208,27 +214,33 @@ class strokec{
     this.context.beginPath(); // begin
     this.context.lineWidth = this.lineWidth;
     this.context.lineCap = 'round';
-    this.context.strokeStyle = '#AAAAFF';
+    this.context.strokeStyle = '#AAFFAA';
     for(var i=0;i<this.arr.length;i++){
-      if(pos.x==-1){pos = this.arr[i];continue;}
+      if(pos.x<0){pos = this.arr[i];continue;}
       this.context.moveTo(pos.x,pos.y)
       pos = this.arr[i];
-      if(pos.x==-1)continue;
+      if(pos.x<0)continue;
       this.context.lineTo(pos.x, pos.y);
     }
     this.context.stroke();
   }
 
+/****************************************************/
+
   distance(pos1,pos2){
     return (pos1.x-pos2.x)*(pos1.x-pos2.x)+(pos1.y-pos2.y)*(pos1.y-pos2.y);
   }
-
-  fast(e){
-    var arr=[];
-    for(var i=1;i<e.length;i++){
-      if(eqlpt(e[i],e[i-1])==0)
-        arr.push({x:e[i].x,y:e[i].y});}
-    e.arr=arr;
+  push(a){
+    if(this.arr.length==0)this.arr.push(a);
+    else if(!eqlpt(this.last(),a))
+      this.arr.push(a);
   }
-
+  nearest(point){
+    var nearest = this.tree.nearest(point, 1, this.maxdist);
+    return nearest.length? nearest[0][0]:point;
+  }
+  last(){
+    if(!this.arr.length)return {x:-1,y:-1};
+    return this.arr[this.arr.length-1];
+  }
 }

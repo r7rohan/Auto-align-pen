@@ -4,7 +4,7 @@
 
 <style>
 *{
-  background-color:#F5F5F5;
+  background-color:#FAFAFA;
 }
 body {
   margin-top:3vh;
@@ -17,11 +17,23 @@ div.main{
 div.controls{
   width:20vw;
   height:100vh;
-  padding-top:10vh;
+  padding-top:18vh;
   display:inline-block;
   text-align:center;
   float:left;
 }
+div.title{
+  background-color:#111111E9;
+  font-size:2.5vw;
+  top:0%;
+  font-family:Times;
+  margin-top:0%;
+  padding-bottom:0.1%;
+  padding-top:0.1%;
+  position:fixed;
+  width:100vw;
+  color:#FFFFFF;
+  text-align:center;}
 button {
     width:7vw;
     border-width: 2px;
@@ -37,6 +49,9 @@ canvas{
 }
 a {
   text-decoration: none;
+}
+span {
+  color:#FF7777;
 }
 </style>
 </head>
@@ -61,13 +76,11 @@ a {
   <br>
   <div class="slidecontainer">
     <label for="Threshold">Threshold</label>
-    <input type="range" min="1" max="500" value="" class="slider" id="Threshold">
+    <input type="range" min="50" max="500" value="" class="slider" id="Threshold"><br>
   </div>
   <br>
   <button id="picture">Picture</button> <br><br>
   <button id="sobel">Sobel filter</button> <br><br>
-  <button id="apply">Apply</button> <br><br>
-  <button id="undo">Undo-Apply</button> <br><br>
   <button id="smooth">Smooth</button> <br><br>
   <button id="reset">Reset</button>
   <br>
@@ -77,18 +90,39 @@ a {
   <br>
   <br>
   <br>
+  <label for="max"> Real time On</label>
+  <input type="checkbox" id="realtime">
+  <br>
+  <br>
   <label for="max"> Maxdist Off</label>
   <input type="checkbox" id="max">
 
+
 </div>
+<div class="title"> Auto Pen align</div>
 
 <div class = "main">
-<div style="font-size:5vh;"> Auto-Pen align drawing to the edges</div>
 <br>
 <br>
+<<<<<<< HEAD
+<br>
+<br>
+<div style="font-size:2.5vh;line-height:3.5vh;">Online tool for auto pen alignment. Drawing can be automatically aligned with the edges, either in realtime or when you release your mouse.
+   It is similar to the magnetic lasso feature but has many more options to draw smooth computer aided traces online.
+   Additionally, edge detection and smoothening can be also done. Edge detection uses SOBEL edge detection filter. <br><br>
+ If you don't get the desired result try adjusting <span>Threshold</span> and try to <span>Smoothen</span>. <br><br>
+ <span>Right click</span> to undo, Turn-on <span>realtime</span> to align in real time, Switch off <span>maxdist</span> for stronger results, Use <span>reset</span> to reset the drawing </div>
+=======
 <div style="font-size:2.5vh;"> Drawing can be automatically aligned with the edges. Online tool for auto pen alignment.
   Additionally, edge detection and smoothening can be also done. Edge detection uses SOBEL edge detection filter. <br><br>
  If you don't get the desired result try adjusting Threshold and try to Smoothen. Switch off maxdist for stronger results</div>
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+>>>>>>> 57080214d46696ad6f238088c5598a7cec84fc78
+=======
+>>>>>>> 57080214d46696ad6f238088c5598a7cec84fc78
+>>>>>>> Stashed changes
 <br>
 <br>
 <canvas id="canvas"></canvas>

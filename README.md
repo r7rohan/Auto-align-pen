@@ -4,32 +4,35 @@
 ### Demo
 https://r7rohan.github.io/Auto-align-pen/
 
+Online tool for auto pen alignment. Drawing can be automatically aligned with the edges, either in realtime or when you release your mouse. It is similar to the magnetic lasso feature but has many more options to draw smooth computer aided traces. Additionally, edge detection and smoothening can be also done.
 
 ### Features
 - Webpage for auto-alignment and edge detection
 
-- Drawing can be done on any picture uploaded and then downloaded
+- Drawing can be done and undone on any picture uploaded. It can then be downloaded like any normal editor
 
 - Aligns the drawing with the edges in the picture (`uses k-d trees`)
 
+- Two modes of alignment: <br>
+`With the user`: Alignment will be done while drawing and will help the user to draw <br>
+`After mouse release`: Alignment will be done when the user releases mouse-hold 
+
 - Edge detection filter can be applied based on threshold selected (`uses Sobel filter`)
 
-- Smoothening of drawing can be done
-
-- Alignment and drawing can be erased and done like a normal editor<br><br>
-`Choose File`: Upload the local image <br>
+- Smoothening of drawing can also be done
+<br><br>
 `Picture`: Show the actual picture <br>
 `Sobel`: Show the Edges <br>
 `Threshold`: Select the edge threshold <br>
-`Align`: Align your drawing with the image <br>
-`Undo Align`: Undo the last alignment <br>
 `Smooth`: Smoothens your drawing <br>
+`Right click`: Undo the last change <br>
 `Reset`: Remove the drawing <br>
-`Download`: Download whatever is on canvas <br>
-`Maxdist off`: Align with anything, distance will not matter
+`Real time on`: Alignment will be done while the user draws <br>
+`Maxdist off`: Align with anything, distance will not matter <br>
+
 
 ### Working
-- Drawing is processed into pixels and the picture is converted to edges. Each drawn pixel is aligned to its nearest neighbour among the edge pixels (uses k-d tree for fast execution). 
+- Drawing is processed into different stroke pixels and the picture is converted to edges. Each drawn pixel is aligned to its nearest neighbour among the edge pixels (uses k-d tree for fast execution). 
 
 - Edge detection is done using `sobel` filter. Convulation is based on [this code](https://github.com/piratefsh/image-processing)
 
