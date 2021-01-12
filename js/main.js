@@ -8,8 +8,21 @@ var maxdist = Number(10*10);
 var lineWidth = Number(3);
 var smoothness=50;
 
-var width=Number(800);
-var canvas=document.getElementById('canvas')
+var canvas=document.getElementById('canvas');
+//mobile
+if (window.innerWidth<1000){
+    var width=0.5*window.innerWidth
+    document.getElementById("text").style.fontSize=0.021*window.innerWidth
+    document.getElementById("text").style.lineHeight=0.0021*window.innerWidth
+    document.getElementById("controls").style.width = 0.25*window.innerWidth
+    document.getElementById("controls").style.fontSize = 0.021*window.innerWidth
+    document.getElementById("main").style.width = 0.70*window.innerWidth
+    smoothness=20;
+    var mode=0;}
+else {
+    var mode=1;
+    var width=0.6*window.innerWidth;}
+
 
 
 //Loading image on canvas
@@ -23,11 +36,11 @@ document.getElementById('inp').onchange = function(e) {
     stroke1.maketree(pic);
     setupcontrols();
     }
-
 };
 function failed() {
   console.error("The provided file couldn't be loaded as an Image media");
 }
+
 
 
 //controls
@@ -47,6 +60,7 @@ function setupcontrols(){
   document.getElementById("max").onchange=function(){
     if(!document.getElementById("max").checked)stroke1.maxdist=maxdist;else stroke1.maxdist=1000*1000;
     console.log('maxdist changed');}
+
   document.getElementById("realtime").onchange=function(){
       if(this.checked)realtime=1;else realtime=0;
       console.log('realtime changed');}
@@ -57,18 +71,30 @@ function setupcontrols(){
     dt = dt.replace(/^data:application\/octet-stream/, 'data:application/octet-stream;headers=Content-Disposition%3A%20attachment%3B%20filename=Canvas.png');
     this.href = dt;
   }
+  //mouse
   document.addEventListener('mousemove', draw);
   document.addEventListener('mouseup',up);
+  //touch
+  document.addEventListener('touchmove', draw);
+  document.addEventListener('touchend',up);
+  canvas.addEventListener("touchstart",  function(event) {event.preventDefault()})
+  canvas.addEventListener("touchmove",   function(event) {event.preventDefault()})
+  canvas.addEventListener("touchend",    function(event) {event.preventDefault()})
+  canvas.addEventListener("touchcancel", function(event) {event.preventDefault()})
 }
+
 
 
 //draw
 var pos = { x: 0, y: 0 };
-// new position from mouse event
+
 function setPosition(e) {
+  var v=e;
+  if(!mode) v = e.targetTouches[0];
+
   var pos = {x:0,y:0};
-  pos.x = e.pageX - canvas.offsetLeft;
-  pos.y = e.pageY - canvas.offsetTop;
+  pos.x = v.pageX - canvas.offsetLeft;
+  pos.y = v.pageY - canvas.offsetTop;
   return pos;
 }
 
@@ -82,8 +108,8 @@ function up(e){
 
 function draw(e) {
   // mouse left button must be pressed
-  if (e.buttons !== 1) {
-      return};
+  if (e.buttons !== 1 && mode) {
+      return}
   //avoid repitition
   if(eqlpt(pos,setPosition(e)))return;
 
