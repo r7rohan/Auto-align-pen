@@ -2,9 +2,10 @@ var pic;
 var stroke1;
 var which = "normal";
 var realtime=0;
+var usetree = 0;
 
 var contrast = 2;
-var maxdist = Number(10*10);
+var maxdist = Number(10);
 var lineWidth = Number(3);
 var smoothness=50;
 
@@ -33,6 +34,7 @@ document.getElementById('inp').onchange = function(e) {
   img.onload = function(){
     pic=new imgc(img,canvas,width,contrast);
     stroke1=new strokec(canvas, maxdist, lineWidth);
+    if(usetree)
     stroke1.maketree(pic);
     setupcontrols();
     }
@@ -53,8 +55,14 @@ function setupcontrols(){
 
   document.getElementById("Threshold").onchange=function(){
     pic.threshold=document.getElementById('Threshold').value;
-    stroke1.maketree(pic);
-    console.log(pic.threshold)
+    if(which == "sobel"){pic.draw("sobel");stroke1.draw();}
+    if(usetree)stroke1.maketree(pic);
+    console.log(pic.threshold);
+  }
+
+  document.getElementById("distance").onchange=function(){
+    stroke1.maxdist = Number(document.getElementById("distance").value);
+    console.log(stroke1.maxdist);
   }
 
   document.getElementById("max").onchange=function(){
@@ -100,7 +108,7 @@ function setPosition(e) {
 
 function up(e){
   if(!realtime){
-    stroke1.apply();pic.draw(which);stroke1.draw();
+    stroke1.apply(pic);pic.draw(which);stroke1.draw();
   }
   stroke1.push({x:-1,y:-1});
   console.log('up');
@@ -129,7 +137,7 @@ function draw(e) {
 
   //nearest
   if(realtime)
-  pos = stroke1.nearest({x:pos.x,y:pos.y});
+  pos = stroke1.nearest({x:pos.x,y:pos.y},pic);
   ctx.lineTo(pos.x, pos.y); // to
 
   //only if not start

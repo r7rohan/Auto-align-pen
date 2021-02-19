@@ -30,6 +30,7 @@ class imgc{
    this.length;
    this.sobelimg;
    this.sobel();
+   this.arr;
  }
 
  sobel(){
@@ -45,7 +46,7 @@ class imgc{
           i += 4;
         }
         data=arr;
-
+        this.arr=arr;
         // convolution kernels
         var kernelX = this.kernels['sobel'].x;
         var kernelY = this.kernels['sobel'].y;
@@ -160,23 +161,10 @@ class strokec{
       this.arr.pop();
   }
 
-  maketree(pic){
-    pic.sobelimg=pic.sobelt();
-    var imgarr = [];
-    var rowOffset = this.canvas.width;
-    var data = pic.edges.slice();
-
-    for(var i=0; i<data.length;i++){
-      if(data[i]>0)
-        imgarr.push({x:i%rowOffset,y:Math.floor(i/rowOffset)});
-    }
-    this.tree = new kdTree(imgarr, this.distance, ["x", "y"]);
-  }
-
-  apply(){
+  apply(pic){
     for(var i = this.arr.length-1;i>=0;i--){
       if(this.arr[i].x<0)break;
-      this.arr[i]=this.nearest(this.arr[i]);
+      this.arr[i]=this.nearest(this.arr[i],pic);
     }
   }
 
@@ -225,6 +213,54 @@ class strokec{
     this.context.stroke();
   }
 
+  maketree(pic){
+    pic.sobelimg=pic.sobelt();
+    var imgarr = [];
+    var rowOffset = this.canvas.width;
+    var data = pic.edges.slice();
+
+    for(var i=0; i<data.length;i++){
+      if(data[i]>0)
+        imgarr.push({x:i%rowOffset,y:Math.floor(i/rowOffset)});
+    }
+    this.tree = new kdTree(imgarr, this.distance, ["x", "y"]);
+  }
+
+  quadratic(point,r,pic){
+      var kernelX = pic.kernels['sobel'].x;
+      var kernelY = pic.kernels['sobel'].y;
+      var rowOffset = pic.canvas.width;
+      var kernelSize = kernelX.length;
+      var dist=[];
+      for(var i=point.x-Math.floor(r/2);i<point.x+Math.floor((r+1)/2);i++){
+        for(var j=point.y-Math.floor(r/2);j<point.y+Math.floor((r+1)/2);j++){
+          var sumx=0,sumy=0;
+          for(var x = 0; x < kernelSize; x++){
+              for(var y = 0; y < kernelSize; y++){
+                var pt = (j+y-1)*rowOffset+(i+x-1);
+                if(pt<0 || pt>=pic.arr.length) continue;
+                var px = pic.arr[pt];
+                sumx += (px[0]+px[1]+px[2])*kernelX[y][x]/3;
+                sumy += (px[0]+px[1]+px[2])*kernelY[y][x]/3;
+              }
+            }
+            var tot = Math.sqrt(sumx*sumx + sumy*sumy);
+            if(tot>pic.threshold){dist.push( {x:i,y:j});}
+        }
+      }
+
+      var newpoint = {x:point.x,y:point.y};
+      if(dist.length){
+      var mn = this.distance(dist[0],point);
+      newpoint = {x:dist[0].x,y:dist[0].y};
+      for(var i=1;i<dist.length;i++)
+        if(this.distance(dist[i],point)<mn){
+          mn = this.distance(dist[i],point);
+          newpoint = {x:dist[i].x,y:dist[i].y};
+        }
+    }
+      return newpoint;
+  }
 /****************************************************/
 
   distance(pos1,pos2){
@@ -235,9 +271,13 @@ class strokec{
     else if(!eqlpt(this.last(),a))
       this.arr.push(a);
   }
-  nearest(point){
-    var nearest = this.tree.nearest(point, 1, this.maxdist);
-    return nearest.length? nearest[0][0]:point;
+  nearest(point,pic){
+    if(usetree){
+    var nearest = this.tree.nearest(point, 1, this.maxdist*this.maxdist);
+    var near = nearest.length? nearest[0][0]:point;}
+
+    var near = this.quadratic(point,this.maxdist,pic);
+    return near;
   }
   last(){
     if(!this.arr.length)return {x:-1,y:-1};

@@ -52,7 +52,7 @@ button {
     padding: 0.5%;
 }
 canvas{
-  margin-left: 5vw;
+  margin-left: 3vw;
 }
 a {
   text-decoration: none;
@@ -86,6 +86,11 @@ span {
     <input type="range" min="50" max="500" value="" class="slider" id="Threshold"><br>
   </div>
   <br>
+  <div class="slidecontainer">
+    <label for="distance">Radius</label>
+    <input type="range" min="7" max="70" value="10" class="slider" id="distance"><br>
+  </div>
+  <br>
   <button id="picture">Picture</button> <br><br>
   <button id="sobel">Sobel filter</button> <br><br>
   <button id="smooth">Smooth</button> <br><br>
@@ -117,7 +122,7 @@ span {
    It is similar to the magnetic lasso feature but has many more options to draw smooth computer aided traces online.
    Additionally, edge detection and smoothening can be also done. Edge detection uses SOBEL edge detection filter. <br><br>
  If you don't get the desired result try adjusting <span>Threshold</span> and try to <span>Smoothen</span>. <br><br>
- <span>Right click</span> to undo, Turn-on <span>realtime</span> to align in real time, Switch off <span>maxdist</span> for stronger results, Use <span>reset</span> to reset the drawing </div>
+ <span>Right click</span> to undo, Turn-on <span>realtime</span> to align in real time, Change <span>radius</span> for stronger results, Use <span>reset</span> to reset the drawing </div>
 <br>
 <br>
 <canvas id="canvas"></canvas>
