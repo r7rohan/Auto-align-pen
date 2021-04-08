@@ -18,7 +18,7 @@ function eqlpt(a,b){
   else return 0;
 }
 function max(a){
-  var m = 0;
+  var m = -100000000000;
   for(var i=0;i<a.length;i++){
     m = m>a[i]? m : a[i];
   }
@@ -28,7 +28,7 @@ function max(a){
 function min(a){
   var m = 100000000000;
   for(var i=0;i<a.length;i++){
-    m = m>a[i]? m : a[i];
+    m = m<a[i]? m : a[i];
   }
   return m;
 }

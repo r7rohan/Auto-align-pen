@@ -2,10 +2,9 @@ var pic;
 var stroke1;
 var which = "normal";
 var realtime=0;
-var usetree = 0;
 
 var contrast = 2;
-var maxdist = Number(10);
+var maxdist = Number(30);
 var lineWidth = Number(3);
 var smoothness=50;
 
@@ -34,8 +33,6 @@ document.getElementById('inp').onchange = function(e) {
   img.onload = function(){
     pic=new imgc(img,canvas,width,contrast);
     stroke1=new strokec(canvas, maxdist, lineWidth);
-    if(usetree)
-    stroke1.maketree(pic);
     setupcontrols();
     }
 };
@@ -49,16 +46,15 @@ function failed() {
 function setupcontrols(){
   document.getElementById('picture').onclick = function(){pic.draw("normal");stroke1.draw();which="normal"};
   document.getElementById('sobel').onclick = function(){pic.draw("sobel");stroke1.draw();which="sobel"};
-  document.getElementById('smooth').onclick = function(){stroke1.smooth(smoothness,2*2); pic.draw(which); stroke1.draw(); console.log("smooth");};
   window.oncontextmenu =  function(){stroke1.undo(); pic.draw(which);  stroke1.draw(); console.log("undone");return false;};
   document.getElementById('reset').onclick = function(){stroke1.reset();pic.draw(which);};
 
   document.getElementById("Threshold").onchange=function(){
     pic.threshold=document.getElementById('Threshold').value;
     if(which == "sobel"){pic.draw("sobel");stroke1.draw();}
-    if(usetree)stroke1.maketree(pic);
     console.log(pic.threshold);
   }
+  document.getElementById('smooth').onclick = function(){stroke1.smoothness = this.value*this.value;console.log(this.value);};
 
   document.getElementById("distance").onchange=function(){
     stroke1.maxdist = Number(document.getElementById("distance").value);

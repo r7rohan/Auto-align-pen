@@ -4,141 +4,52 @@ class imgc{
 
    this.canvas = canvas;
    this.context = this.canvas.getContext('2d');
+   this.canvas2 = document.createElement('canvas');
+   this.context2 = this.canvas2.getContext('2d');
    this.canvas.width = width;
    this.canvas.height = img.height*width/img.width;
-   this.kernels = {
-         'sobel':{
-             x:  [[-1, 0, 1],
-                 [-2, 0, 2],
-                 [-1, 0, 1]],
-             y:  [[-1, -2, -1],
-                 [0, 0, 0],
-                 [1, 2, 1]],
-            z: [[-2, -1, 0],
-                [-1, 0, 1],
-                [0, 1, 2]]
-         }
-     }
-
+   this.canvas2.width = width;
+   this.canvas2.height = img.height*width/img.width;
 
    this.context.drawImage(img, 0, 0, img.width,img.height,0, 0, this.canvas.width, this.canvas.height);
+   this.context2.drawImage(img, 0, 0, img.width,img.height,0, 0, this.canvas.width, this.canvas.height);
    this.img = this.context.getImageData(0, 0, this.canvas.width, this.canvas.height);
-   this.threshold = 200;
-   this.contrast=contrast;
-   this.mag;
-   this.drc;
-   this.length;
-   this.sobelimg;
-   this.sobel();
-   this.arr;
+   this.threshold = 250;
+
  }
-
- sobel(){
-        var context = this.context;
-        var canvas = this.canvas;
-        // array of pixel data
-        var data = this.img.data;
-        var length = data.length;
-        var arr = new Array(length / 4);
-        var i = 0;
-        while (i < length) {
-          arr[i / 4] = [data[i], data[i+1], data[i+2], data[i+3]];
-          i += 4;
-        }
-        data=arr;
-        this.arr=arr;
-        // convolution kernels
-        var kernelX = this.kernels['sobel'].x;
-        var kernelY = this.kernels['sobel'].y;
-
-        var kernelSize = kernelX.length;
-
-        // offset value to get window of pixels
-        var rowOffset = canvas.width;
-
-        // math to get 3x3 window of pixels because image data given is just a 1D array of pixels
-        var maxPixelOffset = canvas.width * 2 + kernelSize - 1;
-
-        // optimizations
-        var SQRT = Math.sqrt;
-        var ATAN2 =  Math.atan2;
-
-        this.length = data.length - maxPixelOffset
-
-        this.mag = new Array(this.length);
-        this.drc = new Array(this.length);
-
-        for(var i = 0; i < this.length; i++){
-            // sum of each pixel * kernel value
-            var sumXr = 0, sumYr = 0;
-            var sumXg = 0, sumYg = 0;
-            var sumXb = 0, sumYb = 0;
-            for(var x = 0; x < kernelSize; x++){
-                for(var y = 0; y < kernelSize; y++){
-                    var px = data[i + (rowOffset * y) + x];
-                    var r = px[0];
-                    var g = px[1];
-                    var b = px[2];
-                    sumXr += r * kernelX[y][x]*this.contrast ;
-                    sumYr += r * kernelY[y][x]*this.contrast ;
-                    sumXg += g * kernelX[y][x]*this.contrast ;
-                    sumYg += g * kernelY[y][x]*this.contrast ;
-                    sumXb += b * kernelX[y][x]*this.contrast ;
-                    sumYb += b * kernelY[y][x]*this.contrast ;
-                }
-            }
-            this.mag[i] = SQRT(max([sumXr*sumXr + sumYr*sumYr],[sumXg*sumXg + sumYg*sumYg],[sumXb*sumXb + sumYb*sumYb]));
-            this.drc[i] = ATAN2(sumXr,sumYr);
-
-
-        }
-    }
-
-
-    sobelt(){
-      var thresh=this.threshold*this.contrast;
-      var magnitudes = new Array(this.length);
-      var directions = new Array(this.length);
-      // set magnitude to 0 if doesn't exceed threshold, else set to magnitude
-      for(var i = 0; i < this.length; i++){
-        magnitudes[i] = this.mag[i]> thresh? this.mag[i] : 0;
-        directions[i] = this.mag[i] > thresh? this.drc[i] : 0;
-      }
-
-        var dataLength = this.canvas.width * this.canvas.height * 4;
-        // keep edge and direction magnitude for each pixel
-        this.edges = new Array(dataLength/4);
-        this.directions = new Array(dataLength/4);
-
-        var edges = new Array(dataLength);
-        var i = 0;
-
-        while(i < dataLength){
-            edges[i] =  0;
-            if(!(i % 4)) {
-              var m = magnitudes[i / 4];
-              var d = directions[i / 4];
-
-              this.edges[i/4]       = m;
-              this.directions[i/4]  = d;
-
-              if(m != 0) {
-                edges[i - 1] = m / 4;
-              }
-            }
-            i++;
-        }
-        return new ImageData(new Uint8ClampedArray(edges), this.canvas.width, this.canvas.height);
-    }
+ detect(x1,y1,x,y){
+     var newdata = this.context2.getImageData(x1,y1,x,y);
+     let src = cv.matFromImageData(newdata);
+     let dst = new cv.Mat();
+     cv.cvtColor(src, src, cv.COLOR_RGB2GRAY, 0);
+      // You can try more different parameters
+     cv.Canny(src, dst,Number(this.threshold)/1.5,Number(this.threshold), 3, false);
+     src.delete();
+     return dst;
+   }
+  edge(x1,y1,x,y){
+     var dist = [];
+     var temp = this.detect(x1,y1,x,y)
+     var l = temp.data;
+     for (var i = x1;i<x1+x;i++)
+       for(var j = y1;j<y1+y;j++){
+         var e = l[(j-y1)*x+i-x1];
+         if(e>200)
+           dist.push({x:i,y:j})
+       }
+     temp.delete();
+   return dist;
+   }
 
     draw(which){
       if (which == 'normal')
       this.context.putImageData(this.img,0,0);
       else{
-        this.sobelimg=this.sobelt();
-        this.context.putImageData(this.sobelimg,0,0);}
+      var ed = this.detect(0,0,this.canvas.width,this.canvas.height);
+      cv.imshow(this.canvas,ed);
+      ed.delete();
     }
-
+  }
 }
 
 
@@ -148,52 +59,10 @@ class strokec{
       this.context = this.canvas.getContext('2d');
       this.lineWidth = lineWidth;
       this.maxdist = maxdist;
+      this.smoothness=50*50;
+      this.arr;
       this.reset();
   }
-  reset(){
-    this.arr=[];
-  }
-  undo(){
-    this.arr.pop();
-    for(var i=this.arr.length-1;i>=0;i--)
-      if(this.arr[i].x==-1)break;
-      else
-      this.arr.pop();
-  }
-
-  apply(pic){
-    for(var i = this.arr.length-1;i>=0;i--){
-      if(this.arr[i].x<0)break;
-      this.arr[i]=this.nearest(this.arr[i],pic);
-    }
-  }
-
-  smooth(k,r){
-    //only the last segment
-    var i=this.arr.length-2;
-    if(i<=0)return;
-    for(;i>=0;i--)if(this.arr[i].x<0) break;
-    i+=1;
-
-    var d = Math.floor(k/2),temp;
-    i=misc1(this,i,i+k-1,k);
-    temp=i[1];
-    i=i[0];
-
-    for (;i<this.arr.length-k;i++){
-      if(this.distance(temp,this.arr[i+d])>r)
-        this.arr[i+d] = {x:temp.x,y:temp.y};
-
-      if(this.arr[i+k].x<0){
-        i=misc1(this,i+k+1,i+k+1+k-1,k);
-        temp=i[1];
-        i=i[0];
-        continue;}
-      temp.x += (this.arr[i+k].x-this.arr[i].x)/k;
-      temp.y += (this.arr[i+k].y-this.arr[i].y)/k;
-    }
-  }
-
   draw(){
     if(this.arr.length == 0)
       return;
@@ -212,73 +81,71 @@ class strokec{
     }
     this.context.stroke();
   }
-
-  maketree(pic){
-    pic.sobelimg=pic.sobelt();
-    var imgarr = [];
-    var rowOffset = this.canvas.width;
-    var data = pic.edges.slice();
-
-    for(var i=0; i<data.length;i++){
-      if(data[i]>0)
-        imgarr.push({x:i%rowOffset,y:Math.floor(i/rowOffset)});
+  apply(pic){
+    for(var i = this.arr.length-1;i>=0;i--){
+      if(this.arr[i].x<0)break;
+      this.arr[i]=this.nearest(this.arr[i],pic);
     }
-    this.tree = new kdTree(imgarr, this.distance, ["x", "y"]);
+    // Continuity Heuristic
+    var n = 3, th = this.smoothness, dist=[];
+    for(var i = this.arr.length-1;i>=0;i--){
+      if(this.arr[i].x<0)break;
+      var c=0,mean={x:0,y:0};
+      for(var j=-n;j<=n;j++){
+        if(i+j<0||i+j>this.arr.length-1)continue;
+        if(this.arr[i+j].x<0){mean=this.arr[i];c=1;break;}
+        mean.x+=this.arr[i+j].x
+        mean.y+=this.arr[i+j].y
+        c+=1;}
+      mean.x/=c;mean.y/=c;
+      if (this.distance(mean,this.arr[i])>th)
+        dist.push(mean);
+      else dist.push(this.arr[i]);
+    }
+    for(var i = this.arr.length-1;i>=0;i--){
+      if(this.arr[i].x<0)break;
+      this.arr[i]=dist[this.arr.length-1-i];}
   }
-
-  quadratic(point,r,pic){
-      var kernelX = pic.kernels['sobel'].x;
-      var kernelY = pic.kernels['sobel'].y;
-      var rowOffset = pic.canvas.width;
-      var kernelSize = kernelX.length;
-      var dist=[];
-      for(var i=point.x-Math.floor(r/2);i<point.x+Math.floor((r+1)/2);i++){
-        for(var j=point.y-Math.floor(r/2);j<point.y+Math.floor((r+1)/2);j++){
-          var sumx=0,sumy=0;
-          for(var x = 0; x < kernelSize; x++){
-              for(var y = 0; y < kernelSize; y++){
-                var pt = (j+y-1)*rowOffset+(i+x-1);
-                if(pt<0 || pt>=pic.arr.length) continue;
-                var px = pic.arr[pt];
-                sumx += (px[0]+px[1]+px[2])*kernelX[y][x]/3;
-                sumy += (px[0]+px[1]+px[2])*kernelY[y][x]/3;
-              }
-            }
-            var tot = Math.sqrt(sumx*sumx + sumy*sumy);
-            if(tot>pic.threshold){dist.push( {x:i,y:j});}
-        }
-      }
-
-      var newpoint = {x:point.x,y:point.y};
-      if(dist.length){
-      var mn = this.distance(dist[0],point);
-      newpoint = {x:dist[0].x,y:dist[0].y};
-      for(var i=1;i<dist.length;i++)
-        if(this.distance(dist[i],point)<mn){
-          mn = this.distance(dist[i],point);
-          newpoint = {x:dist[i].x,y:dist[i].y};
+  reset(){
+    this.arr=[];
+  }
+  undo(){
+    this.arr.pop();
+    for(var i=this.arr.length-1;i>=0;i--)
+      if(this.arr[i].x==-1)break;
+      else
+      this.arr.pop();
+  }
+  nearest(point,pic){
+    var r = this.maxdist
+    var x1 = max([point.x-Math.floor(r/2),0])
+    var y1 = max([point.y-Math.floor(r/2),0])
+    var x = min([r,pic.canvas.width-x1])
+    var y = min([r,pic.canvas.height-y1])
+    var dist = pic.edge(x1,y1,x,y)
+    var near = point;
+    var d , mind = 1000000*100000;
+    for(var i =0;i<dist.length;i++){
+        var d = this.distance(point,dist[i]);
+        if(d<mind){
+            mind = d;
+            near = dist[i];
         }
     }
-      return newpoint;
-  }
+    return near;
+}
 /****************************************************/
 
   distance(pos1,pos2){
     return (pos1.x-pos2.x)*(pos1.x-pos2.x)+(pos1.y-pos2.y)*(pos1.y-pos2.y);
   }
+
   push(a){
     if(this.arr.length==0)this.arr.push(a);
     else if(!eqlpt(this.last(),a))
       this.arr.push(a);
   }
-  nearest(point,pic){
-    if(usetree){
-    var nearest = this.tree.nearest(point, 1, this.maxdist*this.maxdist);
-    var near = nearest.length? nearest[0][0]:point;}
 
-    var near = this.quadratic(point,this.maxdist,pic);
-    return near;
-  }
   last(){
     if(!this.arr.length)return {x:-1,y:-1};
     return this.arr[this.arr.length-1];
