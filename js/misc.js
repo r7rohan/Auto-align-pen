@@ -1,16 +1,12 @@
-function misc1(e,l,r,k){
-  var temp = {x:0,y:0};
-  for(var i=l;i<=r && i<e.arr.length;i++){
-  if(e.arr[i].x<0){
-    temp={x:0,y:0};
-    r=i+k;
-    l=i+1;
-    continue;
-  }
-  temp.x+=e.arr[i].x/k;
-  temp.y+=e.arr[i].y/k;
-}
-return [l,temp];
+function average(mod1,f,i,n){
+  var c=0, mean={x:0,y:0};
+  for(var j=-n; j<=n ;j++){
+    if(i+j>f||j==0||f-(i+j)>=mod1.length)continue;
+    mean.x+=mod1[f-(i+j)].x
+    mean.y+=mod1[f-(i+j)].y
+    c+=1;}
+  mean.x=~~(mean.x/c);mean.y=~~(mean.y/c);
+  return mean;
 }
 
 function eqlpt(a,b){

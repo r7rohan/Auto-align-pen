@@ -3,10 +3,8 @@ var stroke1;
 var which = "normal";
 var realtime=0;
 
-var contrast = 2;
 var maxdist = Number(30);
 var lineWidth = Number(3);
-var smoothness=50;
 
 var canvas=document.getElementById('canvas');
 //mobile
@@ -31,7 +29,7 @@ document.getElementById('inp').onchange = function(e) {
   img.onerror = failed;
   img.src = URL.createObjectURL(this.files[0]);
   img.onload = function(){
-    pic=new imgc(img,canvas,width,contrast);
+    pic=new imgc(img,canvas,width);
     stroke1=new strokec(canvas, maxdist, lineWidth);
     setupcontrols();
     }
@@ -45,16 +43,19 @@ function failed() {
 //controls
 function setupcontrols(){
   document.getElementById('picture').onclick = function(){pic.draw("normal");stroke1.draw();which="normal"};
-  document.getElementById('sobel').onclick = function(){pic.draw("sobel");stroke1.draw();which="sobel"};
-  window.oncontextmenu =  function(){stroke1.undo(); pic.draw(which);  stroke1.draw(); console.log("undone");return false;};
-  document.getElementById('reset').onclick = function(){stroke1.reset();pic.draw(which);};
+  window.oncontextmenu =  function(){stroke1.undo(); pic.draw();  stroke1.draw(); console.log("undone");return false;};
+  document.getElementById('reset').onclick = function(){stroke1.reset();pic.draw();};
 
   document.getElementById("Threshold").onchange=function(){
     pic.threshold=document.getElementById('Threshold').value;
     if(which == "sobel"){pic.draw("sobel");stroke1.draw();}
     console.log(pic.threshold);
   }
-  document.getElementById('smooth').onclick = function(){stroke1.smoothness = this.value*this.value;console.log(this.value);};
+  document.getElementById('smooth').onclick = function(){
+    stroke1.smoothness = this.value*this.value;
+    if(this.value==10)
+      stroke1.smoothness = 50*50;
+    console.log(stroke1.smoothness);};
 
   document.getElementById("distance").onchange=function(){
     stroke1.maxdist = Number(document.getElementById("distance").value);
@@ -75,6 +76,12 @@ function setupcontrols(){
     dt = dt.replace(/^data:application\/octet-stream/, 'data:application/octet-stream;headers=Content-Disposition%3A%20attachment%3B%20filename=Canvas.png');
     this.href = dt;
   }
+  document.getElementById('enhance').onmouseover = function(){document.getElementById('enhancecontrols').style.display="block";};
+  document.getElementById('enhance').onmouseout = function(){document.getElementById('enhancecontrols').style.display="none";};
+  document.getElementById('sobel').onclick = function(){pic.draw("sobel");stroke1.draw();which="sobel"};
+  document.getElementById('clahe').onclick = function(){pic.draw("clahe");stroke1.draw();which="clahe"};
+  document.getElementById('sharpen').onclick = function(){pic.draw("sharpen");stroke1.draw();which="sharpen"};
+  document.getElementById('custom').onclick = function(){pic.draw("custom");stroke1.draw();which="normal"};
   //mouse
   document.addEventListener('mousemove', draw);
   document.addEventListener('mouseup',up);
@@ -91,11 +98,9 @@ function setupcontrols(){
 
 //draw
 var pos = { x: 0, y: 0 };
-
 function setPosition(e) {
   var v=e;
   if(!mode) v = e.targetTouches[0];
-
   var pos = {x:0,y:0};
   pos.x = v.pageX - canvas.offsetLeft;
   pos.y = v.pageY - canvas.offsetTop;
@@ -104,7 +109,7 @@ function setPosition(e) {
 
 function up(e){
   if(!realtime){
-    stroke1.apply(pic);pic.draw(which);stroke1.draw();
+    stroke1.apply(pic);pic.draw();stroke1.draw();
   }
   stroke1.push({x:-1,y:-1});
   console.log('up');
@@ -118,7 +123,7 @@ function draw(e) {
   if(eqlpt(pos,setPosition(e)))return;
 
   //outside
-  if(setPosition(e).x>canvas.width || setPosition(e).y>canvas.height){
+  if(setPosition(e).x>canvas.width || setPosition(e).y>canvas.height || setPosition(e).x<0 || setPosition(e).y<0){
     return;}
 
   // begin

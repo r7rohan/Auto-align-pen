@@ -1,11 +1,11 @@
 <html lang="en">
 <head>
   <title>Auto-Align pen : Align in real time</title>
-  <link rel="icon" href="pic.jpg" type="image/x-icon">
+  <link rel="icon" href="title.jpg" type="image/x-icon">
   <meta name="google-site-verification" content="cfJk9FLR8RlGvv_xyGc4Z-P6s0WkY_pr9JwI45biJvM" />
   <meta name="description" content="Advanced pen alignment and editing capabilities in your browser, Online real time magnetic lasso tool.
-   Auto align pen does auto alignment in real time as you draw! Helps in computer aided drawing. Edge detection can also be done using Canny Edge detection.
-   Use for free on desktop or Mobile"/>
+   Auto align pen does auto alignment in real time as you draw! Helps in computer aided drawing.
+   Image enhancements like Canny edge detection, Histogram equalisation, Sharpening can also be done. Use for free on desktop or Mobile"/>
 <style>
 *{
   background-color:#FAFAFA;
@@ -83,7 +83,7 @@ span {
   <br>
   <div class="slidecontainer">
     <label for="Threshold">Threshold</label>
-    <input type="range" min="50" max="1000" value="250" class="slider" id="Threshold"><br>
+    <input type="range" min="20" max="300" value="90" class="slider" id="Threshold"><br>
   </div>
   <br>
   <div class="slidecontainer">
@@ -93,11 +93,22 @@ span {
   <br>
   <div class="slidecontainer">
     <label for="distance">Roughness</label>
-    <input type="range" min="1" max="50" value="50" class="slider" id="smooth"><br>
+    <input type="range" min="1" max="10" value="4" class="slider" id="smooth"><br>
   </div>
   <br>
-  <button id="picture">Picture</button> <br><br>
-  <button id="sobel">Canny filter</button> <br><br>
+  <button id="picture">Picture</button>
+  <br>
+  <br>
+  <div id="enhance">
+  <button>Enhance</button>
+  <div id="enhancecontrols" style="display:none;">
+  <br>
+  <button id="sobel" width="20%">Canny</button>
+  <button id="clahe" width="20%">Clahe</button>
+  <button id="sharpen" width="20%">Sharpen</button>
+  <button id="custom" width="20%">Filter</button>
+  </div></div>
+  <br>
   <button id="reset">Reset</button>
   <br>
   <br>
@@ -122,10 +133,10 @@ span {
 <br>
 <br>
 <br>
-<div id="text" style="font-size:2.5vh;line-height:3.5vh;">Online tool for auto pen alignment. Drawing can be automatically aligned with the edges, either in realtime or when you release your mouse.
+<div id="text" style="font-size:2.5vh;line-height:3.2vh;">Online tool for auto pen alignment. Drawing can be automatically aligned with the edges, either in realtime or when you release your mouse.
    It is similar to the magnetic lasso feature but has many more options to draw smooth computer aided traces online.
-   Additionally, edge detection and smoothening can be also done. Edge detection uses Canny edge detection. <br><br>
- If you don't get the desired result try adjusting <span>Radius</span> and <span>Threshold</span> and try to <span>Smoothen</span>. <br><br>
+   Additionally, Image enhancements such as Canny Edge detection, CLAHE, Sharpening can also be done. <br><br>
+ If you don't get the desired result try adjusting <span>Radius</span> and <span>Threshold</span> and try to <span>Smoothen</span>, or also try <span>Image Enhancements</span> <br><br>
  <span>Right click</span> to undo, Turn-on <span>realtime</span> to align in real time, Change <span>radius</span> for stronger results, Use <span>reset</span> to reset the drawing </div>
 <br>
 <br>
@@ -138,6 +149,6 @@ span {
   <script src="js\misc.js"></script>
   <script src="js\img.js"></script>
   <script src="js\main.js"></script>
-  <script src="js\opencv.js"></script>
+  <script src="js\enhance.js"></script>
 </body>
 </html>
